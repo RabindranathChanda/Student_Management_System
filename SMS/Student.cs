@@ -62,12 +62,79 @@ namespace SMS
 
         private void Close_btn_MouseLeave(object sender, EventArgs e)
         {
-            Close_btn.ForeColor= Color.Black;
+            Close_btn.ForeColor = Color.White;
+        }
+
+        private void Minimize_btn_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void Minimize_btn_MouseEnter(object sender, EventArgs e)
+        {
+            Minimize_btn.ForeColor = Color.White;
+        }
+
+        private void Minimize_btn_MouseLeave(object sender, EventArgs e)
+        {
+            Minimize_btn.ForeColor = Color.White;
         }
 
         private void Student_Load(object sender, EventArgs e)
         {
+            // Add modern styling and animations
+            SetupModernStyling();
+        }
 
+        private void SetupModernStyling()
+        {
+            // Add hover effects to text boxes
+            foreach (Control control in this.Controls)
+            {
+                if (control is TextBox)
+                {
+                    TextBox textBox = control as TextBox;
+                    textBox.Enter += TextBox_Enter;
+                    textBox.Leave += TextBox_Leave;
+                }
+            }
+
+            // Add hover effects to panels
+            foreach (Control control in this.MainPanel.Controls)
+            {
+                if (control is Panel && control != this.TitlePanel)
+                {
+                    Panel panel = control as Panel;
+                    panel.MouseEnter += Panel_MouseEnter;
+                    panel.MouseLeave += Panel_MouseLeave;
+                }
+            }
+        }
+
+        private void TextBox_Enter(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            textBox.BackColor = Color.FromArgb(240, 248, 255);
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+        }
+
+        private void TextBox_Leave(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            textBox.BackColor = Color.White;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+        }
+
+        private void Panel_MouseEnter(object sender, EventArgs e)
+        {
+            Panel panel = sender as Panel;
+            panel.BackColor = Color.FromArgb(252, 252, 252);
+        }
+
+        private void Panel_MouseLeave(object sender, EventArgs e)
+        {
+            Panel panel = sender as Panel;
+            panel.BackColor = Color.White;
         }
 
 
@@ -86,6 +153,11 @@ namespace SMS
         {
             try
             {
+                // Visual validation feedback
+                if (!ValidateForm())
+                {
+                    return;
+                }
 
                 string[] inputs = new string[]
                 {
@@ -105,6 +177,7 @@ namespace SMS
                 if (inputs.Any(input => string.IsNullOrWhiteSpace(input)))
                 {
                     WControls.ShowToasterMsg("ACTION NEEDED", "Missing Data", "Fill all Details Carefully!!");
+                    HighlightEmptyFields();
                 }
                 else
                 {
@@ -112,10 +185,12 @@ namespace SMS
                     Sql_Query = "Insert into Student values(@S_ID, @S_Name, @F_Name, @Address, @Phone, @Voter, @Class, @Roll, @Sec, @Library, @Bus, @Photo)";
 
                     byte[] image = null;
-                    FileStream stream = new FileStream(query, FileMode.Open, FileAccess.Read);
-                    BinaryReader brs = new BinaryReader(stream);
-                    image = brs.ReadBytes((int)stream.Length);
-
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        FileStream stream = new FileStream(query, FileMode.Open, FileAccess.Read);
+                        BinaryReader brs = new BinaryReader(stream);
+                        image = brs.ReadBytes((int)stream.Length);
+                    }
 
                     cmd = new SqlCommand(Sql_Query, WControls.connection);
                     cmd.Parameters.AddWithValue("@S_ID", Student_id_tbx.Text);
@@ -129,7 +204,7 @@ namespace SMS
                     cmd.Parameters.AddWithValue("@Sec", Sec_tbx.Text);
                     cmd.Parameters.AddWithValue("@Library", Library_tbx.Text);
                     cmd.Parameters.AddWithValue("@Bus", Bus_tbx.Text);
-                    cmd.Parameters.AddWithValue("@Photo", image);
+                    cmd.Parameters.AddWithValue("@Photo", image ?? (object)DBNull.Value);
                     cmd.ExecuteNonQuery();
                     ClearInputFields();
                     WControls.ShowToasterMsg("SUCCESS", "Saved Successfully ", "Data Stored in Database");
@@ -146,6 +221,50 @@ namespace SMS
                 WControls.DBConClose();
             }
         }
+
+        private bool ValidateForm()
+        {
+            bool isValid = true;
+            
+            // Reset all field colors
+            ResetFieldColors();
+            
+            // Check if photo is selected
+            if (Photo_pb.Image == null)
+            {
+                WControls.ShowToasterMsg("WARNING", "Photo Required", "Please select a student photo before saving.");
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        private void HighlightEmptyFields()
+        {
+            TextBox[] textBoxes = { Student_id_tbx, StudentName_tbx, FatherName_tbx, Add_tbx, 
+                                  Phone_tbx, Voter_tbx, Class_tbx, Roll_tbx, Sec_tbx, Library_tbx, Bus_tbx };
+            
+            foreach (TextBox textBox in textBoxes)
+            {
+                if (string.IsNullOrWhiteSpace(textBox.Text))
+                {
+                    textBox.BackColor = Color.FromArgb(255, 240, 240);
+                    textBox.BorderStyle = BorderStyle.FixedSingle;
+                }
+            }
+        }
+
+        private void ResetFieldColors()
+        {
+            TextBox[] textBoxes = { Student_id_tbx, StudentName_tbx, FatherName_tbx, Add_tbx, 
+                                  Phone_tbx, Voter_tbx, Class_tbx, Roll_tbx, Sec_tbx, Library_tbx, Bus_tbx };
+            
+            foreach (TextBox textBox in textBoxes)
+            {
+                textBox.BackColor = Color.White;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+            }
+        }
         private void ClearInputFields()
         {
             Student_id_tbx.Text = string.Empty;
@@ -160,6 +279,10 @@ namespace SMS
             Library_tbx.Text = string.Empty;
             Bus_tbx.Text = string.Empty;
             Photo_pb.Image = null;
+            query = string.Empty;
+            
+            // Reset field colors
+            ResetFieldColors();
         }
     }
 }
