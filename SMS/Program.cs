@@ -16,10 +16,24 @@ namespace SMS
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //L_or_R Lr = new L_or_R();
-            //Lr.Show();
-
-            Application.Run(new L_or_R());
+            
+            // Optimize startup to reduce flickering
+            try
+            {
+                Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            }
+            catch
+            {
+                // Ignore if HighDpiMode is not available in older .NET versions
+            }
+            
+            // Create and configure the main form with optimized initialization
+            L_or_R mainForm = new L_or_R();
+            
+            // Show the main form
+            mainForm.Show();
+            
+            Application.Run(mainForm);
         }
     }
 }

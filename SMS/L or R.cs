@@ -63,13 +63,33 @@ namespace SMS
         }
         public L_or_R()
         {
+            // Optimize form initialization to prevent flickering
+            this.SuspendLayout();
+            
             InitializeComponent();
-            DoubleBuffered = true;
-            // Rounded Corners ---------------------------------
-            var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
-            var preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-            DwmSetWindowAttribute(this.Handle, attribute, ref preference, sizeof(uint));
-            // --------------------------------------------------
+            
+            // Set double buffering and other visual properties
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | 
+                         ControlStyles.UserPaint | 
+                         ControlStyles.DoubleBuffer | 
+                         ControlStyles.ResizeRedraw, true);
+            
+            this.ResumeLayout(false);
+            this.PerformLayout();
+            
+            // Apply DWM settings after form is fully loaded
+            this.Load += (sender, e) => {
+                try
+                {
+                    var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
+                    var preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+                    DwmSetWindowAttribute(this.Handle, attribute, ref preference, sizeof(uint));
+                }
+                catch
+                {
+                    // Ignore DWM errors on older systems
+                }
+            };
         }
 
         private void Close_btn_Click(object sender, EventArgs e)
@@ -138,9 +158,14 @@ namespace SMS
 
                 DP = (byte[])table.Rows[0][6];
 
+                // Optimize form transition to prevent flickering
+                this.SuspendLayout();
+                this.Hide();
+                
                 Dashboard dashboard = new Dashboard(Name, UserType, DP);
                 dashboard.Show();
-                this.Hide();
+                
+                this.ResumeLayout();
                 WControls.ShowToasterMsg("SUCCESS", "Login Successfull", "User Loged in Successfully");
                 WControls.DBConClose();
                 //this.Close();
