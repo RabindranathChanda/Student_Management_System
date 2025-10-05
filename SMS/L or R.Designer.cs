@@ -262,7 +262,7 @@
             this.Controls.Add(this.circular_Picture_Box1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.Close_btn);
-            this.DoubleBuffered = true;
+            // DoubleBuffered is now handled in constructor for better performance
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "L_or_R";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

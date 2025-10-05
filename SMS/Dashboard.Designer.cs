@@ -836,7 +836,7 @@
             this.Controls.Add(this.WorkingPanel);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.TitleBar_pnl);
-            this.DoubleBuffered = true;
+            // DoubleBuffered is now handled in constructor for better performance
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Dashboard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

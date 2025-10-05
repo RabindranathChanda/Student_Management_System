@@ -70,19 +70,54 @@ namespace SMS
         public Dashboard(string Name, string UserType, byte[] DP)
         //public Dashboard()
         {
+            // Optimize form initialization to prevent flickering
+            this.SuspendLayout();
+            
             InitializeComponent();
-            DoubleBuffered = true;
-
+            
+            // Set advanced double buffering and visual properties
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | 
+                         ControlStyles.UserPaint | 
+                         ControlStyles.DoubleBuffer | 
+                         ControlStyles.ResizeRedraw, true);
+            
+            // Set user information
             label13.Text = Name.ToString();
             label14.Text = UserType.ToString();
-            MemoryStream ms = new MemoryStream(DP);
-            DP_cpb.Image = Image.FromStream(ms);
-
-            // Rounded Corners ---------------------------------
-            var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
-            var preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-            DwmSetWindowAttribute(this.Handle, attribute, ref preference, sizeof(uint));
-            // --------------------------------------------------
+            
+            // Optimize image loading to prevent flickering
+            if (DP != null && DP.Length > 0)
+            {
+                try
+                {
+                    using (MemoryStream ms = new MemoryStream(DP))
+                    {
+                        DP_cpb.Image = Image.FromStream(ms);
+                    }
+                }
+                catch
+                {
+                    // Handle image loading errors gracefully
+                    DP_cpb.Image = null;
+                }
+            }
+            
+            this.ResumeLayout(false);
+            this.PerformLayout();
+            
+            // Apply DWM settings after form is fully loaded
+            this.Load += (sender, e) => {
+                try
+                {
+                    var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
+                    var preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+                    DwmSetWindowAttribute(this.Handle, attribute, ref preference, sizeof(uint));
+                }
+                catch
+                {
+                    // Ignore DWM errors on older systems
+                }
+            };
         }
         private void Dashboard_Load(object sender, EventArgs e)
         {
