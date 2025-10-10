@@ -72,7 +72,7 @@ The project depends on a third-party component â€” **Custom Picture Box.dll**  â
 - `MSBuild` cannot properly resolve this reference inside the Docker build environment.
 - Even when the DLL is copied manually, dependency resolution fails because the path structure and GAC references differ inside the container.
 - The Dockerfile build step (`msbuild /p:Configuration=Release`) terminates with a missing reference error for `Custom Picture Box.dll`.
-
+- Manually renaming of **Custom Picture Box.dll** -> **CustomPictureBox.dll** and copiying to specified location solve the build issue however can affect functionality.
 This prevents the Docker image from being built automatically unless the dependency is restructured or included via a NuGet-compatible source.
 
 ---
