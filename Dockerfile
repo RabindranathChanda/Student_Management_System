@@ -1,30 +1,28 @@
-# Use a .NET SDK image as the build environment
-FROM mcr.microsoft.com/dotnet/sdk:4.8 AS build
+# Stage 1: Build the application using the .NET Framework SDK image
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8 AS build
 
 WORKDIR /app
+
+COPY SMS.sln ./
+# Ensure Custom Picture Box.dll is available for MSBuild
+COPY CustomPictureBox/bin/debug/CustomPictureBox.dll CustomPictureBox/bin/debug/
 
 # Copy the project file and restore dependencies
-COPY *.csproj ./
-RUN dotnet restore
+COPY SMS/ ./SMS/
+RUN nuget restore SMS.sln
 
-# Copy the remaining source code and build the application
-COPY . .
-RUN dotnet publish -c Release -o out
+# Copy the source code and build the project
+COPY . ./
 
-# Use a .NET Runtime image as the runtime environment
-FROM mcr.microsoft.com/dotnet/runtime:4.8 AS runtime
+RUN msbuild /p:Configuration=Release
+
+# Stage 2: Runtime image
+FROM mcr.microsoft.com/dotnet/framework/runtime:4.8 AS runtime
 
 WORKDIR /app
 
-# Install dependencies for WPF applications (e.g., fontconfig, libgdiplus)
-# This might vary depending on your specific WPF application's needs
-RUN apt-get update && apt-get install -y \
-    fontconfig \
-    libgdiplus \
-    && rm -rf /var/lib/apt/lists/*
+# Copy the built files from the build image
+COPY --from=build /app/SMS/bin/Release/ ./
 
-# Copy the published application from the build stage
-COPY --from=build /app/out ./
-
-# Set the entry point for the application
+# Set the entry point
 ENTRYPOINT ["SMS.exe"]
