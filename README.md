@@ -15,6 +15,28 @@ A comprehensive Windows desktop application for managing student records, librar
 
 ---
 
+
+## 📑 Table of Contents
+- [Overview](#-overview)
+- [Quick Start (5 Minutes)](#-quick-start-5-minutes)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#project-structure)
+- [Application Preview](#-application-preview)
+- [Getting Started](#-getting-started)
+- [Installation Guide](#-installation-guide)
+- [Common Issues & Solutions](#-common-issues--solutions)
+- [Usage Guide](#-usage-guide)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [Project Structure Tree](#project-structure-1)
+- [License](#-license)
+- [Contributors](#-contributors)
+- [Acknowledgements](#-acknowledgements)
+- [Contact & Support](#-contact--support)
+- [Learning Resources](#-learning-resources)
+
+
 ## 📖 Overview
 
 **Student Management System** is a feature-rich Windows Forms application built with C# and .NET Framework 4.8.1. It provides an intuitive interface for educational institutions to manage student admissions, library book circulation, student records, and administrative operations from a single unified platform.
